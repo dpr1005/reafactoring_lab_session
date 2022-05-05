@@ -1,5 +1,6 @@
 refactoring_lab_session
 ========================
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/736f22589a1b4acb9c6299b35cd05e94)](https://www.codacy.com/gh/dpr1005/reafactoring_lab_session/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=dpr1005/reafactoring_lab_session&amp;utm_campaign=Badge_Grade)
 
 Refactoring lab session. Object-Oriented Reengineering Patterns. Serge Demeyer - Bart Du Bois.
 
