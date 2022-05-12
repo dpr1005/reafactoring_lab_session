@@ -22,7 +22,6 @@ package lanSimulation;
 import lanSimulation.internals.*;
 import java.util.Hashtable;
 
-import com.sun.tools.javac.util.List;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -223,16 +222,7 @@ public class Network {
 		actions.add("' passes packet on.\n");
 		
 		do {
-			try {
-				for(String action : actions) {
-					currentNode.logActionReport(report, action);
-				}
-				report.flush();
-			} catch (IOException exc) {
-				// just ignore
-			}
-
-			currentNode = currentNode.nextNode_;
+			currentNode = send(report, currentNode, actions);
 		} while (!atDestination(currentNode, packet));
 
 		try {
@@ -284,48 +274,17 @@ public class Network {
 		}
 
 		boolean result = false;
-		Node startNode, currentNode;
+		Node currentNode;
 		Packet packet = new Packet(document, workstation, printer);
 
-		startNode = (Node) workstations_.get(workstation);
+		currentNode = (Node) workstations_.get(workstation);
 
-		try {
-			startNode.logActionReport(report, "' passes packet on.\n"); // Changed
-			report.flush();
-		} catch (IOException exc) {
-			// just ignore
-		}
-		
 		ArrayList<String> actions = new ArrayList<>();
 		actions.add("' passes packet on.\n");
 		
-		currentNode = startNode.nextNode_;
-		while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet))) {
-			try {
-				for(String action : actions) {
-					currentNode.logActionReport(report, action);
-				}
-				report.flush();
-			} catch (IOException exc) {
-				// just ignore
-			}
-			currentNode = currentNode.nextNode_;
-		}
-		
-		
-		/*
-		do {
-			try {
-				for(String action : actions) {
-					currentNode.logActionReport(report, action);
-				}
-				report.flush();
-			} catch (IOException exc) {
-				// just ignore
-			}
-
-			currentNode = currentNode.nextNode_;
-		} while (!atDestination(currentNode, packet));*/
+		do{
+			currentNode = send(report, currentNode, actions);
+		}while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet)));
 		
 		
 		if (atDestination(currentNode, packet)) {
@@ -342,6 +301,19 @@ public class Network {
 		}
 
 		return result;
+	}
+
+	private Node send(Writer report, Node currentNode, ArrayList<String> actions) {
+		try {
+			for(String action : actions) {
+				currentNode.logActionReport(report, action);
+			}
+			report.flush();
+		} catch (IOException exc) {
+			// just ignore
+		}
+		currentNode = currentNode.nextNode_;
+		return currentNode;
 	}
 
 	private boolean atOrigin(Node currentNode, Packet packet) {
