@@ -88,4 +88,73 @@ Construct a <em>Node</em> with given #type and #name, and which is linked to #ne
         report.write(name_);
         report.write(action);
     }
+
+	public void printOn(StringBuffer buf) {
+		switch (type_) {
+			case NODE:
+				buf.append("Node ");
+				buf.append(name_);
+				buf.append(" [Node]");
+				break;
+			case WORKSTATION:
+				buf.append("Workstation ");
+				buf.append(name_);
+				buf.append(" [Workstation]");
+				break;
+			case PRINTER:
+				buf.append("Printer ");
+				buf.append(name_);
+				buf.append(" [Printer]");
+				break;
+			default:
+				buf.append("(Unexpected)");
+				break;
+		}
+	}
+
+	public void printHTMLOn(StringBuffer buf) {
+		switch (type_) {
+			case NODE:
+				buf.append("Node ");
+				buf.append(name_);
+				buf.append(" [Node]");
+				break;
+			case WORKSTATION:
+				buf.append("Workstation ");
+				buf.append(name_);
+				buf.append(" [Workstation]");
+				break;
+			case PRINTER:
+				buf.append("Printer ");
+				buf.append(name_);
+				buf.append(" [Printer]");
+				break;
+			default:
+				buf.append("(Unexpected)");
+				break;
+		}
+	}
+
+	public void printXMLOn(StringBuffer buf) {
+		switch (type_) {
+			case NODE:
+				buf.append("<node>");
+				buf.append(name_);
+				buf.append("</node>");
+				break;
+			case WORKSTATION:
+				buf.append("<workstation>");
+				buf.append(name_);
+				buf.append("</workstation>");
+				break;
+			case PRINTER:
+				buf.append("<printer>");
+				buf.append(name_);
+				buf.append("</printer>");
+				break;
+			default:
+				buf.append("<unknown></unknown>");
+				break;
+		}
+	}
 }
