@@ -215,8 +215,8 @@ public class Network {
 		Packet packet = new Packet("BROADCAST", firstNode_.name_, firstNode_.name_);
 		do {
 			try {
-				logActionReport(report, currentNode, "' accepts broadcase packet.\n"); // Changed
-				logActionReport(report, currentNode, "' passes packet on.\n"); // Changed
+				currentNode.logActionReport(report, "' accepts broadcase packet.\n"); // Changed
+				currentNode.logActionReport(report, "' passes packet on.\n"); // Changed
 				report.flush();
 			} catch (IOException exc) {
 				// just ignore
@@ -277,7 +277,7 @@ public class Network {
 		startNode = (Node) workstations_.get(workstation);
 
 		try {
-			logActionReport(report, startNode, action); // Changed
+			startNode.logActionReport(report, action); // Changed
 			report.flush();
 		} catch (IOException exc) {
 			// just ignore
@@ -286,7 +286,7 @@ public class Network {
 		currentNode = startNode.nextNode_;
 		while ((!packet.destination_.equals(currentNode.name_)) & (!packet.origin_.equals(currentNode.name_))) {
 			try {
-				logActionReport(report, currentNode, action); // Changed
+				currentNode.logActionReport(report, action); // Changed
 				report.flush();
 			} catch (IOException exc) {
 				// just ignore
@@ -308,19 +308,6 @@ public class Network {
 		}
 
 		return result;
-	}
-
-	/**
-	 * 
-	 * @param report
-	 * @param node
-	 * @param action
-	 * @throws IOException
-	 */
-	private void logActionReport(Writer report, Node node, String action) throws IOException {
-		report.write("\tNode '");
-		report.write(node.name_);
-		report.write(action);
 	}
 
 	private boolean printDocument(Node printer, Packet document, Writer report) {
@@ -385,6 +372,16 @@ public class Network {
 
 			return false;
 		}
+	}
+
+	private void printAccountings(Writer report, String str, String author, String str1, String title, String str2, String str3) throws IOException {
+		report.write(str);
+		report.write(author);
+		report.write(str1);
+		report.write(title);
+		report.write(str2);
+		report.write(str3);
+		report.flush();
 	}
 
 	/**
