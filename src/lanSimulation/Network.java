@@ -223,7 +223,7 @@ public class Network {
 			}
 
 			currentNode = currentNode.nextNode_;
-		} while (!packet.destination_.equals(currentNode.name_));
+		} while (!atDestination(currentNode, packet));
 
 		try {
 			report.write(">>> Broadcast travelled whole token ring.\n\n");
@@ -232,6 +232,10 @@ public class Network {
 		}
 
 		return true;
+	}
+
+	private boolean atDestination(Node currentNode, Packet packet) {
+		return packet.destination_.equals(currentNode.name_);
 	}
 
 	/**
@@ -284,7 +288,7 @@ public class Network {
 		}
 
 		currentNode = startNode.nextNode_;
-		while ((!packet.destination_.equals(currentNode.name_)) & (!packet.origin_.equals(currentNode.name_))) {
+		while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet))) {
 			try {
 				currentNode.logActionReport(report, action); // Changed
 				report.flush();
@@ -294,7 +298,7 @@ public class Network {
 			currentNode = currentNode.nextNode_;
 		}
 
-		if (packet.destination_.equals(currentNode.name_)) {
+		if (atDestination(currentNode, packet)) {
 			result = packet.printDocument(currentNode, report, this);
 		} else {
 			try {
@@ -308,6 +312,10 @@ public class Network {
 		}
 
 		return result;
+	}
+
+	private boolean atOrigin(Node currentNode, Packet packet) {
+		return packet.origin_.equals(currentNode.name_);
 	}
 
 	/**
