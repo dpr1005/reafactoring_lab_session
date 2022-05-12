@@ -21,6 +21,10 @@ package lanSimulation;
 
 import lanSimulation.internals.*;
 import java.util.Hashtable;
+
+import com.sun.tools.javac.util.List;
+
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.*;
 
@@ -213,10 +217,16 @@ public class Network {
 
 		Node currentNode = firstNode_;
 		Packet packet = new Packet("BROADCAST", firstNode_.name_, firstNode_.name_);
+		
+		ArrayList<String> actions = new ArrayList<>();
+		actions.add("' accepts broadcase packet.\n");
+		actions.add("' passes packet on.\n");
+		
 		do {
 			try {
-				currentNode.logActionReport(report, "' accepts broadcase packet.\n"); // Changed
-				currentNode.logActionReport(report, "' passes packet on.\n"); // Changed
+				for(String action : actions) {
+					currentNode.logActionReport(report, action);
+				}
 				report.flush();
 			} catch (IOException exc) {
 				// just ignore
@@ -276,28 +286,48 @@ public class Network {
 		boolean result = false;
 		Node startNode, currentNode;
 		Packet packet = new Packet(document, workstation, printer);
-		String action = "' passes packet on.\n"; // New
 
 		startNode = (Node) workstations_.get(workstation);
 
 		try {
-			startNode.logActionReport(report, action); // Changed
+			startNode.logActionReport(report, "' passes packet on.\n"); // Changed
 			report.flush();
 		} catch (IOException exc) {
 			// just ignore
 		}
-
+		
+		ArrayList<String> actions = new ArrayList<>();
+		actions.add("' passes packet on.\n");
+		
 		currentNode = startNode.nextNode_;
 		while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet))) {
 			try {
-				currentNode.logActionReport(report, action); // Changed
+				for(String action : actions) {
+					currentNode.logActionReport(report, action);
+				}
 				report.flush();
 			} catch (IOException exc) {
 				// just ignore
 			}
 			currentNode = currentNode.nextNode_;
 		}
+		
+		
+		/*
+		do {
+			try {
+				for(String action : actions) {
+					currentNode.logActionReport(report, action);
+				}
+				report.flush();
+			} catch (IOException exc) {
+				// just ignore
+			}
 
+			currentNode = currentNode.nextNode_;
+		} while (!atDestination(currentNode, packet));*/
+		
+		
 		if (atDestination(currentNode, packet)) {
 			result = packet.printDocument(currentNode, report, this);
 		} else {
