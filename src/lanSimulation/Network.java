@@ -295,7 +295,7 @@ public class Network {
 		}
 
 		if (packet.destination_.equals(currentNode.name_)) {
-			result = printDocument(currentNode, packet, report);
+			result = packet.printDocument(currentNode, report, this);
 		} else {
 			try {
 				report.write(">>> Destinition not found, print job cancelled.\n\n");
@@ -310,80 +310,6 @@ public class Network {
 		return result;
 	}
 
-	private boolean printDocument(Node printer, Packet document, Writer report) {
-		String author = "Unknown";
-		String title = "Untitled";
-		int startPos = 0, endPos = 0;
-
-		if (printer.type_ == Node.PRINTER) {
-			try {
-				if (document.message_.startsWith("!PS")) {
-
-					String status = ">>> Postscript job delivered.\n\n"; // New
-					startPos = document.message_.indexOf("author:");
-
-					if (startPos >= 0) {
-						endPos = document.message_.indexOf(".", startPos + 7);
-						if (endPos < 0) {
-							endPos = document.message_.length();
-						}
-
-						author = document.message_.substring(startPos + 7, endPos);
-					}
-
-					startPos = document.message_.indexOf("title:");
-
-					if (startPos >= 0) {
-						endPos = document.message_.indexOf(".", startPos + 6);
-						if (endPos < 0) {
-							endPos = document.message_.length();
-						}
-
-						title = document.message_.substring(startPos + 6, endPos);
-					}
-
-					printAccounting(report, author, title, status); // Changed
-				}
-
-				else {
-
-					title = "ASCII DOCUMENT";
-					String status = ">>> ASCII Print job delivered.\n\n"; // New
-
-					if (document.message_.length() >= 16) {
-						author = document.message_.substring(8, 16);
-					}
-
-					printAccounting(report, author, title, status); // Changed
-				}
-
-			} catch (IOException exc) {
-				// just ignore
-			}
-
-			return true;
-		} else {
-			try {
-				report.write(">>> Destinition is not a printer, print job cancelled.\n\n");
-				report.flush();
-			} catch (IOException exc) {
-				// just ignore
-			}
-
-			return false;
-		}
-	}
-
-	private void printAccountings(Writer report, String str, String author, String str1, String title, String str2, String str3) throws IOException {
-		report.write(str);
-		report.write(author);
-		report.write(str1);
-		report.write(title);
-		report.write(str2);
-		report.write(str3);
-		report.flush();
-	}
-
 	/**
 	 * 
 	 * @param report
@@ -392,7 +318,7 @@ public class Network {
 	 * @param status
 	 * @throws IOException
 	 */
-	private void printAccounting(Writer report, String author, String title, String status) throws IOException {
+	public void printAccounting(Writer report, String author, String title, String status) throws IOException {
 		report.write("\tAccounting -- author = '");
 		report.write(author);
 		report.write("' -- title = '");
