@@ -19,6 +19,7 @@
  */
 package lanSimulation;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
 import lanSimulation.internals.*;
 import java.util.Hashtable;
 import java.util.List;
@@ -36,7 +37,7 @@ public class Network {
 	/**
 	 * Holds a pointer to myself. Used to verify whether I am properly initialized.
 	 */
-	private Network initPtr_;
+	private final Network initPtr_;
 	/**
 	 * Holds a pointer to some "first" node in the token ring. Used to ensure that
 	 * various printing operations return expected behaviour.
@@ -46,7 +47,7 @@ public class Network {
 	 * Maps the names of workstations on the actual workstations. Used to initiate
 	 * the requests for the network.
 	 */
-	private Hashtable workstations_;
+	private final Hashtable<String, Node> workstations_;
 
 	/**
 	 * Construct a <em>Network</em> suitable for holding #size Workstations.
@@ -59,7 +60,7 @@ public class Network {
 		assert size > 0;
 		initPtr_ = this;
 		firstNode_ = null;
-		workstations_ = new Hashtable(size, 1.0f);
+		workstations_ = new Hashtable<>(size, 1.0f);
 		assert isInitialized();
 		assert !consistentNetwork();
 	}
@@ -80,10 +81,10 @@ public class Network {
 	public static Network DefaultExample() {
 		Network network = new Network(2);
 
-		Node wsFilip = new Node(Node.WORKSTATION, "Filip");
-		Node n1 = new Node(Node.NODE, "n1");
-		Node wsHans = new Node(Node.WORKSTATION, "Hans");
-		Node prAndy = new Node(Node.PRINTER, "Andy");
+		Node wsFilip = new Workstation("Filip");
+		Node n1 = new Node("n1");
+		Node wsHans = new Workstation("Hans");
+		Node prAndy = new Printer("Andy");
 
 		wsFilip.nextNode_ = n1;
 		n1.nextNode_ = wsHans;
@@ -113,15 +114,14 @@ public class Network {
 	 * </p>
 	 */
 	public boolean hasWorkstation(String ws) {
-		// return workstations_.containsKey(ws);
 		Node n;
 
 		assert isInitialized();
-		n = (Node) workstations_.get(ws);
+		n = workstations_.get(ws);
 		if (n == null) {
 			return false;
 		} else {
-			return n.type_ == Node.WORKSTATION;
+			return n instanceof Workstation;
 		}
 	};
 
@@ -135,59 +135,65 @@ public class Network {
 	 * </p>
 	 */
 	public boolean consistentNetwork() {
-		assert isInitialized();
-		Enumeration iter;
 		Node currentNode;
 		int printersFound = 0, workstationsFound = 0;
-		Hashtable encountered = new Hashtable(workstations_.size() * 2, 1.0f);
+		Hashtable<String, Node> encountered = new Hashtable<>(workstations_.size() * 2, 1.0f);
 
-		if (workstations_.isEmpty()) {
-			return false;
-		}
+		if (notCircular(workstations_.isEmpty(), false)) return false;
 
-		if (firstNode_ == null) {
-			return false;
-		}
+		if (notCircular(firstNode_ == null, false)) return false;
 
-		// verify whether all registered workstations are indeed workstations
-		iter = workstations_.elements();
-		while (iter.hasMoreElements()) {
-			currentNode = (Node) iter.nextElement();
-			if (currentNode.type_ != Node.WORKSTATION) {
-				return false;
-			}
-
-		}
+		if (checkWorkstations()) return false;
 
 		// enumerate the token ring, verifying whether all workstations are registered
 		// also count the number of printers and see whether the ring is circular
 		currentNode = firstNode_;
 		while (!encountered.containsKey(currentNode.name_)) {
 			encountered.put(currentNode.name_, currentNode);
-			if (currentNode.type_ == Node.WORKSTATION) {
+			if (currentNode instanceof Workstation) {
 				workstationsFound++;
 			}
 
-			if (currentNode.type_ == Node.PRINTER) {
+			if (currentNode instanceof Printer) {
 				printersFound++;
 			}
 
 			currentNode = currentNode.nextNode_;
 		}
 
-		if (currentNode != firstNode_) {
-			return false;
-		}
+		if (notCircular(currentNode != firstNode_, false)) return false;
 		// not circular
-		if (printersFound == 0) {
-			return false;
-		}
+		if (notCircular(printersFound == 0, false)) return false;
 		// does not contain a printer
-		if (workstationsFound != workstations_.size()) {
-			return false;
+		return workstationsFound == workstations_.size();
+	}
+
+	/**
+	 * If printersFound is true, return true, otherwise return false.
+	 *
+	 * @param printersFound This is the variable that will be returned. It is set to false by default.
+	 * @param x the value of the parameter in the method being tested
+	 * @return The boolean value of printersFound.
+	 */
+	private boolean notCircular(boolean printersFound, boolean x) {
+		return printersFound;
+	}
+
+	/**
+	 * Check if the workstations are circular.
+	 *
+	 * @return A boolean value.
+	 */
+	private boolean checkWorkstations() {
+		Enumeration<Node> iter;
+		Node currentNode;
+		iter = workstations_.elements();
+		while (iter.hasMoreElements()) {
+			currentNode = iter.nextElement();
+			if (notCircular(!(currentNode instanceof Workstation), true)) return true;
+
 		}
-		// not all workstations are registered all verifications succeedeed
-		return true;
+		return false;
 	}
 
 	/**
@@ -233,23 +239,23 @@ public class Network {
 	}
 
 	/**
-	 * 
-	 * @param currentNode
-	 * @param packet
-	 * @return
+	 * If the packet's destination is the same as the current node's name, then we're at the destination.
+	 *
+	 * @param currentNode The node that the packet is currently at.
+	 * @param packet The packet that is being sent.
+	 * @return The boolean value of whether the packet has reached its destination.
 	 */
-
 	private boolean atDestination(Node currentNode, Packet packet) {
 		return packet.destination_.equals(currentNode.name_);
 	}
 
 	/**
-	 * 
-	 * @param currentNode
-	 * @param packet
-	 * @return
+	 * If the packet's origin is the same as the current node's name, then return true.
+	 *
+	 * @param currentNode The node that the packet is currently at.
+	 * @param packet the packet that is being sent
+	 * @return The packet is being returned to the origin node.
 	 */
-
 	private boolean atOrigin(Node currentNode, Packet packet) {
 		return packet.origin_.equals(currentNode.name_);
 	}
@@ -293,7 +299,7 @@ public class Network {
 		Node currentNode;
 		Packet packet = new Packet(document, workstation, printer);
 
-		currentNode = (Node) workstations_.get(workstation);
+		currentNode = workstations_.get(workstation);
 
 		ArrayList<String> actions = new ArrayList<>();
 		actions.add("' passes packet on.\n");
@@ -312,20 +318,19 @@ public class Network {
 				// just ignore
 			}
 
-			result = false;
 		}
 
 		return result;
 	}
 
 	/**
-	 * 
-	 * @param report
-	 * @param currentNode
-	 * @param actions
-	 * @return
+	 * Send the actions to the report and return the next node.
+	 *
+	 * @param report a Writer object that will be used to write the report.
+	 * @param currentNode the current node in the chain
+	 * @param actions a list of actions to send to the server
+	 * @return The next node in the list.
 	 */
-
 	private Node send(Writer report, Node currentNode, List<String> actions) {
 		try {
 			for (String action : actions) {
@@ -340,12 +345,18 @@ public class Network {
 	}
 
 	/**
-	 * 
-	 * @param report
-	 * @param author
-	 * @param title
-	 * @param status
-	 * @throws IOException
+	 * "This function writes a report to a Writer object, and it throws an IOException if the Writer object throws an
+	 * IOException."
+	 *
+	 * The above function is a good example of a function that is easy to understand. It's easy to understand because it's
+	 * easy to read. The function is easy to read because it's easy to scan. The function is easy to scan because it's easy to
+	 * parse. The function is easy to parse because it's easy to tokenize. The function is easy to tokenize because it's easy
+	 * to lex. The function is easy to lex because it's easy to lex
+	 *
+	 * @param report The Writer object to which the report is written.
+	 * @param author The author of the book.
+	 * @param title The title of the book.
+	 * @param status The status of the book.
 	 */
 	public void printAccounting(Writer report, String author, String title, String status) throws IOException {
 		report.write("\tAccounting -- author = '");

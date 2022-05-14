@@ -64,7 +64,7 @@ Construct a <em>Packet</em> with given #message, #origin and #receiver.
         String title = "Untitled";
         int startPos = 0, endPos = 0;
 
-        if (printer.type_ == Node.PRINTER) {
+        if (printer instanceof Printer) {
             try {
                 if (message_.startsWith("!PS")) {
 
