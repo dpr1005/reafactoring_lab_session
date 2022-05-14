@@ -21,7 +21,6 @@ package lanSimulation;
 
 import lanSimulation.internals.*;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.*;
@@ -80,10 +79,10 @@ public class Network {
 	public static Network DefaultExample() {
 		Network network = new Network(2);
 
-		Node wsFilip = new Node(Node.WORKSTATION, "Filip");
-		Node n1 = new Node(Node.NODE, "n1");
-		Node wsHans = new Node(Node.WORKSTATION, "Hans");
-		Node prAndy = new Node(Node.PRINTER, "Andy");
+		Node wsFilip = new Workstation("Filip");
+		Node n1 = new Node("n1");
+		Node wsHans = new Workstation("Hans");
+		Node prAndy = new Printer("Andy");
 
 		wsFilip.nextNode_ = n1;
 		n1.nextNode_ = wsHans;
@@ -121,7 +120,7 @@ public class Network {
 		if (n == null) {
 			return false;
 		} else {
-			return n.type_ == Node.WORKSTATION;
+			return n instanceof Workstation;
 		}
 	};
 
@@ -144,49 +143,50 @@ public class Network {
 		if (workstations_.isEmpty()) {
 			return false;
 		}
-
+		;
 		if (firstNode_ == null) {
 			return false;
 		}
-
+		;
 		// verify whether all registered workstations are indeed workstations
 		iter = workstations_.elements();
 		while (iter.hasMoreElements()) {
 			currentNode = (Node) iter.nextElement();
-			if (currentNode.type_ != Node.WORKSTATION) {
+			if (currentNode instanceof Workstation) {
 				return false;
 			}
-
+			;
 		}
-
+		;
 		// enumerate the token ring, verifying whether all workstations are registered
 		// also count the number of printers and see whether the ring is circular
 		currentNode = firstNode_;
 		while (!encountered.containsKey(currentNode.name_)) {
 			encountered.put(currentNode.name_, currentNode);
-			if (currentNode.type_ == Node.WORKSTATION) {
+			if (currentNode instanceof Workstation) {
 				workstationsFound++;
 			}
-
-			if (currentNode.type_ == Node.PRINTER) {
+			;
+			if (currentNode instanceof Printer) {
 				printersFound++;
 			}
-
+			;
 			currentNode = currentNode.nextNode_;
 		}
-
+		;
 		if (currentNode != firstNode_) {
 			return false;
 		}
-		// not circular
+		;// not circular
 		if (printersFound == 0) {
 			return false;
 		}
-		// does not contain a printer
+		;// does not contain a printer
 		if (workstationsFound != workstations_.size()) {
 			return false;
 		}
-		// not all workstations are registered all verifications succeedeed
+		; // not all workstations are registered
+			// all verifications succeedeed
 		return true;
 	}
 
@@ -214,11 +214,11 @@ public class Network {
 
 		Node currentNode = firstNode_;
 		Packet packet = new Packet("BROADCAST", firstNode_.name_, firstNode_.name_);
-
-		List<String> actions = new ArrayList<>();
+		
+		ArrayList<String> actions = new ArrayList<>();
 		actions.add("' accepts broadcase packet.\n");
 		actions.add("' passes packet on.\n");
-
+		
 		do {
 			currentNode = send(report, currentNode, actions);
 		} while (!atDestination(currentNode, packet));
@@ -232,26 +232,8 @@ public class Network {
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param currentNode
-	 * @param packet
-	 * @return
-	 */
-
 	private boolean atDestination(Node currentNode, Packet packet) {
 		return packet.destination_.equals(currentNode.name_);
-	}
-
-	/**
-	 * 
-	 * @param currentNode
-	 * @param packet
-	 * @return
-	 */
-
-	private boolean atOrigin(Node currentNode, Packet packet) {
-		return packet.origin_.equals(currentNode.name_);
 	}
 
 	/**
@@ -297,11 +279,12 @@ public class Network {
 
 		ArrayList<String> actions = new ArrayList<>();
 		actions.add("' passes packet on.\n");
-
-		do {
+		
+		do{
 			currentNode = send(report, currentNode, actions);
-		} while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet)));
-
+		}while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet)));
+		
+		
 		if (atDestination(currentNode, packet)) {
 			result = packet.printDocument(currentNode, report, this);
 		} else {
@@ -318,17 +301,9 @@ public class Network {
 		return result;
 	}
 
-	/**
-	 * 
-	 * @param report
-	 * @param currentNode
-	 * @param actions
-	 * @return
-	 */
-
-	private Node send(Writer report, Node currentNode, List<String> actions) {
+	private Node send(Writer report, Node currentNode, ArrayList<String> actions) {
 		try {
-			for (String action : actions) {
+			for(String action : actions) {
 				currentNode.logActionReport(report, action);
 			}
 			report.flush();
@@ -337,6 +312,10 @@ public class Network {
 		}
 		currentNode = currentNode.nextNode_;
 		return currentNode;
+	}
+
+	private boolean atOrigin(Node currentNode, Packet packet) {
+		return packet.origin_.equals(currentNode.name_);
 	}
 
 	/**
