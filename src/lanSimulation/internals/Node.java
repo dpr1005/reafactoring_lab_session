@@ -62,10 +62,12 @@ public class Node {
 	}
 
 	/**
+	 * "Logs an action report for this node."
 	 *
-	 * @param report
-	 * @param action
-	 * @throws IOException
+	 * The function is a bit more complicated than that, but the summary is still accurate
+	 *
+	 * @param report The report writer to write to.
+	 * @param action The action that was performed on the node.
 	 */
 	public void logActionReport(Writer report, String action) throws IOException {
 		report.write("\tNode '");
@@ -73,18 +75,34 @@ public class Node {
 		report.write(action);
 	}
 
+	/**
+	 * Prints the name of the node and the type of the node.
+	 *
+	 * @param buf The StringBuffer to print the node on.
+	 */
 	public void printOn(StringBuffer buf) {
 		buf.append("Node ");
 		buf.append(name_);
 		buf.append(" [Node]");
 	}
 
+	/**
+	 * > The function `printHTMLOn` is a member of the class `Node` and it takes a single argument of type `StringBuffer` and
+	 * returns nothing
+	 *
+	 * @param buf The StringBuffer to print to.
+	 */
 	public void printHTMLOn(StringBuffer buf) {
 		buf.append("Node ");
 		buf.append(name_);
 		buf.append(" [Node]");
 	}
 
+	/**
+	 * Print the XML representation of this node on the given buffer.
+	 *
+	 * @param buf The StringBuffer to print the XML to.
+	 */
 	public void printXMLOn(StringBuffer buf) {
 		buf.append("<node>");
 		buf.append(name_);

@@ -25,10 +25,16 @@ import java.io.*;
 
 public class LANSimulation {
 
+	/**
+	 * It runs all the tests in the LANTests class
+	 */
 	public static void doRegressionTests () {
 		junit.textui.TestRunner.run (LANTests.suite());
 	}
 
+	/**
+	 * It simulates the network and prints the report
+	 */
 	public static void simulate () {
 		Network network = Network.DefaultExample();
 		StringWriter report = new StringWriter(100);
@@ -114,22 +120,28 @@ public class LANSimulation {
 		System.out.println(report.toString());
 	}
 
-	public static void main (String args[]) {
+	/**
+	 * If the first argument is 't', then do regression tests. If the first argument is 's', then simulate the LAN. Otherwise,
+	 * print an error message
+	 *
+	 * @param args the command line arguments
+	 */
+	public static void main (String[] args) {
 
 		if (args.length <= 0) {
 			System.out.println("Usage: t(est) | s(imulate) nrOfIterations '");	    
-		} else if (args[0].equals("t")) {//'test' command
+		} else if (args[0].equals("t")) {
 			doRegressionTests();
-		} else if (args[0].equals("s")) {//'simulate' command
-			Integer nrOfIters = new Integer(1);
+		} else if (args[0].equals("s")) {
+			int nrOfIters = 1;
 			if (args.length > 1) {
 				nrOfIters = new Integer(args[1]);
 			};
 
-			for (int i = 0; i < nrOfIters.intValue(); i++) {
+			for (int i = 0; i < nrOfIters; i++) {
 				simulate();
 			}
-		} else {//unknown commaND
+		} else {
 			System.out.print("Unknown command to LANSimulation: '");
 			System.out.print(args[0]);
 			System.out.println("'");

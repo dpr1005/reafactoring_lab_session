@@ -22,15 +22,12 @@ package lanSimulation.tests;
 import lanSimulation.internals.*;
 import lanSimulation.*;
 import junit.framework.*;
-import junit.extensions.*;
-import java.lang.AssertionError;
 import java.io.*;
 
 public class LANTests extends TestCase {
 
 	public static Test suite() {
-		TestSuite testSuite = new TestSuite(LANTests.class);
-		return testSuite;
+		return new TestSuite(LANTests.class);
 	}
 
 	public void testBasicPacket() {
@@ -55,152 +52,62 @@ public class LANTests extends TestCase {
 			} catch (FileNotFoundException f2exc) {
 				try {
 					f1.close();
-				} catch (IOException exc) {
+				} catch (IOException ignored) {
 				}
-				;
-				return false; // file 2 does not exist
+
+				return false;
 			}
 		} catch (FileNotFoundException f1exc) {
-			return false; // file 1 does not exist
+			return false;
 		}
-		;
 
 		try {
 			if (f1.available() != f2.available()) {
 				return false;
-			} // length of files is different
+			}
 			while ((b1 != -1) & (b2 != -1)) {
 				b1 = f1.read();
 				b2 = f2.read();
 				if (b1 != b2) {
 					return false;
-				} // discovered one diferring character
+				}
 			}
-			;
-			if ((b1 == -1) & (b2 == -1)) {
-				return true; // reached both end of files
-			} else {
-				return false; // one end of file not reached
-			}
+
+			return true;
 		} catch (IOException exc) {
-			return false; // read error, assume one file corrupted
+			return false;
 		} finally {
 			try {
 				f1.close();
-			} catch (IOException exc) {
+			} catch (IOException ignored) {
 			}
-			;
+
 			try {
 				f2.close();
-			} catch (IOException exc) {
+			} catch (IOException ignored) {
 			}
-			;
 		}
 	}
 
-	private void YOUMAYWANTTOtestCompareFiles() {
-		String fName1 = "testCompare1.txt", fName2 = "testCompare2.txt", fName3 = "testCompare3.txt",
-				fName4 = "testCompare4.txt";
-		FileWriter f1, f2, f3, f4;
-
-		try {
-			f1 = new FileWriter(fName1);
-			try {
-				f2 = new FileWriter(fName2);
-				try {
-					f3 = new FileWriter(fName3);
-					try {
-						f4 = new FileWriter(fName4);
-					} catch (IOException f3exc) {
-						try {
-							f1.close();
-						} catch (IOException exc) {
-						}
-						;
-						try {
-							f2.close();
-						} catch (IOException exc) {
-						}
-						;
-						try {
-							f3.close();
-						} catch (IOException exc) {
-						}
-						;
-						return;
-					}
-				} catch (IOException f3exc) {
-					try {
-						f1.close();
-					} catch (IOException exc) {
-					}
-					;
-					try {
-						f2.close();
-					} catch (IOException exc) {
-					}
-					;
-					return;
-				}
-			} catch (IOException f2exc) {
-				try {
-					f1.close();
-				} catch (IOException exc) {
-				}
-				;
-				return;
-			}
-		} catch (IOException f1exc) {
-			return;
-		}
-		;
-
-		try {
-			f1.write("aaa");
-			f2.write("aaa");
-			f3.write("aa");
-			f4.write("aab");
-		} catch (IOException exc) {
-		} finally {
-			try {
-				f1.close();
-			} catch (IOException exc) {
-			}
-			;
-			try {
-				f2.close();
-			} catch (IOException exc) {
-			}
-			;
-			try {
-				f3.close();
-			} catch (IOException exc) {
-			}
-			;
-			try {
-				f4.close();
-			} catch (IOException exc) {
-			}
-			;
-		}
-
-		assertTrue("equals fName1 to fName2 ", compareFiles(fName1, fName2));
-		assertFalse("not equals fName1 to fName3 (fName 3 is shorter)", compareFiles(fName1, fName3));
-		assertFalse("not equals fName3 to fName1  (fName 3 is shorter)", compareFiles(fName3, fName1));
-		assertFalse("not equals fName1 to fName4 (last character differs)", compareFiles(fName1, fName4));
-		assertFalse("not equals fName1 to fName4 (last character differs)", compareFiles(fName1, fName4));
-	}
-
+	/**
+	 * "Test the Node class."
+	 *
+	 * The first line of the function is a comment.  Comments are ignored by the compiler.  They are used to document the
+	 * code.  The comment is a one sentence summary of the function.  The comment is followed by a blank line
+	 */
 	public void testBasicNode() {
 		Node node;
 
 		node = new Node("n");
 		assertEquals("name_", node.name_, "n");
-		assertEquals("nextNode_", node.nextNode_, null);
+		assertNull("nextNode_", node.nextNode_);
 		node.nextNode_ = node;
 		assertEquals("nextNode_ (after setting)", node.nextNode_, node);
 	}
 
+	/**
+	 * * The function `testDefaultNetworkToString()` tests the `toString()` method of the `Network` class
+	 */
 	public void testDefaultNetworkToString() {
 		Network network = Network.DefaultExample();
 
@@ -210,6 +117,10 @@ public class LANTests extends TestCase {
 				"Workstation Filip [Workstation] -> Node n1 [Node] -> Workstation Hans [Workstation] -> Printer Andy [Printer] ->  ... ");
 	}
 
+	/**
+	 * The function `requestWorkstationPrintsDocument` takes a workstation name, a document, a printer name and a report
+	 * writer as parameters and returns a boolean value
+	 */
 	public void testWorkstationPrintsDocument() {
 		Network network = Network.DefaultExample();
 		StringWriter report = new StringWriter(500);
@@ -227,6 +138,9 @@ public class LANTests extends TestCase {
 				network.requestWorkstationPrintsDocument("Filip", "!PS Hello World in postscript", "Hans", report));
 	}
 
+	/**
+	 * > The function `testBroadcast` tests the `requestBroadcast` function of the `Network` class
+	 */
 	public void testBroadcast() {
 		Network network = Network.DefaultExample();
 		StringWriter report = new StringWriter(500);
@@ -253,10 +167,9 @@ public class LANTests extends TestCase {
 		try {
 			generateOutput = new FileWriter(generateOutputFName);
 		} catch (IOException f2exc) {
-			assertTrue("Could not create '" + generateOutputFName + "'", false);
+			fail("Could not create '" + generateOutputFName + "'");
 			return;
 		}
-		;
 
 		try {
 			buf.append("---------------------------------ASCII------------------------------------------\n");
@@ -281,35 +194,22 @@ public class LANTests extends TestCase {
 			report.write("\n\n---------------------------------SCENARIO: Broadcast Success -----------------\n");
 			network.requestBroadcast(report);
 			generateOutput.write(report.toString());
-		} catch (IOException exc) {
+		} catch (IOException ignored) {
 		} finally {
 			try {
 				generateOutput.close();
-			} catch (IOException exc) {
+			} catch (IOException ignored) {
 			}
-			;
 		}
-		;
 		assertTrue("Generated output is not as expected ", compareFiles(generateOutputFName, expectedOutputFName));
 	}
 
-	/*
-	 * static public class PreconditionViolationTestCase extends ExceptionTestCase {
-	 * public PreconditionViolationTestCase(String name, Class exception) {
-	 * super(name, exception); }
+	/**
+	 * Filip requests a print of a document on a workstation, and the result is written to the report.
 	 */
-
 	public void test() {
 		Network network = Network.DefaultExample();
 		StringWriter report = new StringWriter(100);
 		network.requestWorkstationPrintsDocument("Filip", "does not matter", "does not matter", report);
 	}
-
-	/*
-	 * public void testPreconditionViolation() { PreconditionViolationTestCase test=
-	 * new PreconditionViolationTestCase("test", AssertionError.class); TestResult
-	 * result= test.; assertEquals(1, result.runCount()); assertEquals(1,
-	 * result.errorCount()); }
-	 */
-
 }

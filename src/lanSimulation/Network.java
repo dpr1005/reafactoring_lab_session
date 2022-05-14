@@ -19,7 +19,6 @@
  */
 package lanSimulation;
 
-import com.sun.corba.se.spi.orbutil.threadpool.Work;
 import lanSimulation.internals.*;
 import java.util.Hashtable;
 import java.util.List;
@@ -105,7 +104,7 @@ public class Network {
 	 */
 	public boolean isInitialized() {
 		return (initPtr_ == this);
-	};
+	}
 
 	/**
 	 * Answer whether #receiver contains a workstation with the given name.
@@ -145,8 +144,6 @@ public class Network {
 
 		if (checkWorkstations()) return false;
 
-		// enumerate the token ring, verifying whether all workstations are registered
-		// also count the number of printers and see whether the ring is circular
 		currentNode = firstNode_;
 		while (!encountered.containsKey(currentNode.name_)) {
 			encountered.put(currentNode.name_, currentNode);
@@ -162,9 +159,9 @@ public class Network {
 		}
 
 		if (notCircular(currentNode != firstNode_, false)) return false;
-		// not circular
+
 		if (notCircular(printersFound == 0, false)) return false;
-		// does not contain a printer
+
 		return workstationsFound == workstations_.size();
 	}
 
@@ -214,8 +211,8 @@ public class Network {
 
 		try {
 			report.write("Broadcast Request\n");
-		} catch (IOException exc) {
-			// just ignore
+		} catch (IOException ignored) {
+
 		}
 
 		Node currentNode = firstNode_;
@@ -231,8 +228,8 @@ public class Network {
 
 		try {
 			report.write(">>> Broadcast travelled whole token ring.\n\n");
-		} catch (IOException exc) {
-			// just ignore
+		} catch (IOException ignored) {
+
 		}
 
 		return true;
@@ -262,7 +259,7 @@ public class Network {
 
 	/**
 	 * The #receiver is requested by #workstation to print #document on #printer.
-	 * Therefore #receiver sends a packet across the token ring network, until
+	 * Therefore, #receiver sends a packet across the token ring network, until
 	 * either (1) #printer is reached or (2) the packet travelled complete token
 	 * ring.
 	 * <p>
@@ -314,8 +311,8 @@ public class Network {
 			try {
 				report.write(">>> Destinition not found, print job cancelled.\n\n");
 				report.flush();
-			} catch (IOException exc) {
-				// just ignore
+			} catch (IOException ignored) {
+
 			}
 
 		}
@@ -337,8 +334,8 @@ public class Network {
 				currentNode.logActionReport(report, action);
 			}
 			report.flush();
-		} catch (IOException exc) {
-			// just ignore
+		} catch (IOException ignored) {
+
 		}
 		currentNode = currentNode.nextNode_;
 		return currentNode;
@@ -365,7 +362,7 @@ public class Network {
 		report.write(title);
 		report.write("'\n");
 		report.write(status);
-		report.flush(); // Sacar del método?
+		report.flush();
 	}
 
 	/**
@@ -400,7 +397,7 @@ public class Network {
 	}
 
 	/**
-	 * Write a HTML representation of #receiver on the given #buf.
+	 * Write an HTML representation of #receiver on the given #buf.
 	 * <p>
 	 * <strong>Precondition:</strong> isInitialized();
 	 * </p>
@@ -435,7 +432,7 @@ public class Network {
 		do {
 			buf.append("\n\t");
 			currentNode.printXMLOn(buf);
-			;
+
 			currentNode = currentNode.nextNode_;
 		} while (currentNode != firstNode_);
 		buf.append("\n</network>");

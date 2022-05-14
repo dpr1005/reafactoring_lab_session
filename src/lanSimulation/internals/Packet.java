@@ -59,6 +59,14 @@ Construct a <em>Packet</em> with given #message, #origin and #receiver.
 		destination_ = destination;
 	}
 
+    /**
+     * If the destination is a printer, then print the document and write a message to the report file
+     *
+     * @param printer The node that the print job is being sent to.
+     * @param report The report writer.
+     * @param network The network object that the message is being sent over.
+     * @return A boolean value.
+     */
     public boolean printDocument(Node printer, Writer report, Network network) {
         String author = "Unknown";
         String title = "Untitled";
