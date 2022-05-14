@@ -21,8 +21,7 @@ package lanSimulation;
 
 import lanSimulation.internals.*;
 import java.util.Hashtable;
-
-
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.io.*;
@@ -145,11 +144,11 @@ public class Network {
 		if (workstations_.isEmpty()) {
 			return false;
 		}
-		;
+
 		if (firstNode_ == null) {
 			return false;
 		}
-		;
+
 		// verify whether all registered workstations are indeed workstations
 		iter = workstations_.elements();
 		while (iter.hasMoreElements()) {
@@ -157,9 +156,9 @@ public class Network {
 			if (currentNode.type_ != Node.WORKSTATION) {
 				return false;
 			}
-			;
+
 		}
-		;
+
 		// enumerate the token ring, verifying whether all workstations are registered
 		// also count the number of printers and see whether the ring is circular
 		currentNode = firstNode_;
@@ -168,27 +167,26 @@ public class Network {
 			if (currentNode.type_ == Node.WORKSTATION) {
 				workstationsFound++;
 			}
-			;
+
 			if (currentNode.type_ == Node.PRINTER) {
 				printersFound++;
 			}
-			;
+
 			currentNode = currentNode.nextNode_;
 		}
-		;
+
 		if (currentNode != firstNode_) {
 			return false;
 		}
-		;// not circular
+		// not circular
 		if (printersFound == 0) {
 			return false;
 		}
-		;// does not contain a printer
+		// does not contain a printer
 		if (workstationsFound != workstations_.size()) {
 			return false;
 		}
-		; // not all workstations are registered
-			// all verifications succeedeed
+		// not all workstations are registered all verifications succeedeed
 		return true;
 	}
 
@@ -216,11 +214,11 @@ public class Network {
 
 		Node currentNode = firstNode_;
 		Packet packet = new Packet("BROADCAST", firstNode_.name_, firstNode_.name_);
-		
-		ArrayList<String> actions = new ArrayList<>();
+
+		List<String> actions = new ArrayList<>();
 		actions.add("' accepts broadcase packet.\n");
 		actions.add("' passes packet on.\n");
-		
+
 		do {
 			currentNode = send(report, currentNode, actions);
 		} while (!atDestination(currentNode, packet));
@@ -234,8 +232,26 @@ public class Network {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param currentNode
+	 * @param packet
+	 * @return
+	 */
+
 	private boolean atDestination(Node currentNode, Packet packet) {
 		return packet.destination_.equals(currentNode.name_);
+	}
+
+	/**
+	 * 
+	 * @param currentNode
+	 * @param packet
+	 * @return
+	 */
+
+	private boolean atOrigin(Node currentNode, Packet packet) {
+		return packet.origin_.equals(currentNode.name_);
 	}
 
 	/**
@@ -281,12 +297,11 @@ public class Network {
 
 		ArrayList<String> actions = new ArrayList<>();
 		actions.add("' passes packet on.\n");
-		
-		do{
+
+		do {
 			currentNode = send(report, currentNode, actions);
-		}while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet)));
-		
-		
+		} while ((!atDestination(currentNode, packet)) & (!atOrigin(currentNode, packet)));
+
 		if (atDestination(currentNode, packet)) {
 			result = packet.printDocument(currentNode, report, this);
 		} else {
@@ -303,9 +318,17 @@ public class Network {
 		return result;
 	}
 
-	private Node send(Writer report, Node currentNode, ArrayList<String> actions) {
+	/**
+	 * 
+	 * @param report
+	 * @param currentNode
+	 * @param actions
+	 * @return
+	 */
+
+	private Node send(Writer report, Node currentNode, List<String> actions) {
 		try {
-			for(String action : actions) {
+			for (String action : actions) {
 				currentNode.logActionReport(report, action);
 			}
 			report.flush();
@@ -314,10 +337,6 @@ public class Network {
 		}
 		currentNode = currentNode.nextNode_;
 		return currentNode;
-	}
-
-	private boolean atOrigin(Node currentNode, Packet packet) {
-		return packet.origin_.equals(currentNode.name_);
 	}
 
 	/**
